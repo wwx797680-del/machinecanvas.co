@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase History - Stock AI Images{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='purchase_history.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Your Purchase History</h1>
+
+    <!-- Purchase History Grid -->
+    <div class="category-grid">
+        {% if purchases %}
+            {% for purchase in purchases %}
+                <div class="category-box">
+                    <img src="{{ url_for('uploaded_file', category=purchase['category'], filename=purchase['filename']) }}" 
+                         alt="Purchased Image {{ purchase['id'] }}" class="category-image">
+                    <p>Image Number: {{ purchase['id'] }}</p>
+                    <p>Price: ${{ purchase['amount'] }}</p>
+                    <p>Purchased on: {{ purchase['purchase_date'] }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- Dummy container if no images have been purchased yet -->
+            <div class="category-box dummy">
+                <div class="image-placeholder">
+                    <p>Awaiting Purchase</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2024 Stock AI Images. All Rights Reserved.</p>
+</footer>
+<script>
+    // Function to fetch the cart count and update the cart icon
+    function updateCartCount() {
+        fetch('/cart_count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+
+</body>
+</html>

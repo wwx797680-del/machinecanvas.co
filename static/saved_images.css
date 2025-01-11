@@ -1,0 +1,48 @@
+/* Grid layout for uploaded images */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+/* Styling for individual image boxes */
+.category-box {
+    background-color: #001f3f;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    height: 300px;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Image container with delete button */
+.category-box:hover .category-image {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Title for each image category */
+.category-box h2 {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.4em;
+    color: #f0f0f0;
+    margin: 0;
+    
+}.remove-button {
+    background-color: #ff4b4b;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-button:hover {
+    background-color: #ff0000;
+}

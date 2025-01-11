@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Image Upload - Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Image Upload</h1>
+
+    <!-- Flash Message Placeholder and Content -->
+    <div id="flashMessage" class="alert" style="display: none;"></div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flashMessageTrigger" style="display: none;"></div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          document.getElementById("flashMessage").innerHTML = `
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          `;
+          showFlashMessage();
+        });
+      </script>
+    {% endif %}
+    {% endwith %}
+
+    <div class="upload-container">
+        <div class="form-preview-wrapper">
+            <!-- Form Section -->
+            <div class="form-container">
+                <form id="uploadForm" action="{{ url_for('upload_image') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload Your Image:</label>
+                        <input type="file" id="file" name="file" class="form-control" accept="image/*" required onchange="previewImage()">
+                        <small class="form-text">Click to select and upload your image (JPEG, PNG, etc.).</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Select Category:</label>
+                        <select id="category" name="category" class="form-control" required>
+                            <option value="" disabled selected>Select category that suits the image</option>
+                            <option value="abstract">Abstract</option>
+                            <option value="nature">Nature</option>
+                            <option value="animals">Animals</option>
+                            <option value="technology">Technology</option>
+                            <option value="people">People</option>
+                            <option value="architecture">Architecture</option>
+                            <option value="art_design">Art & Design</option>
+                            <option value="business">Business</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="food_drink">Food & Drink</option>
+                            <option value="vehicles">Vehicles</option>
+                            <option value="home_decor">Home/Decor</option>
+                            <option value="sports">Sports</option>
+                            <option value="world">World</option>
+                            <option value="history">History</option>
+                            <option value="finance">Finance</option>
+                            <option value="animated">Animated</option>
+                            <option value="miscellaneous">Miscellaneous</option>
+                        </select>
+                        <small class="form-text">Choose the category that best matches your image.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Set Price ($):</label>
+                        <input type="number" id="price" name="price" class="form-control" min="1" required>
+                        <small class="form-text">Enter the selling price for the image.</small>
+                    </div>
+                    <button type="submit" class="upload-button">Upload</button>
+                </form>
+            </div>
+
+            <!-- Preview Section with Borders -->
+            <div class="preview">
+                <div class="preview-container">
+                    <div id="imagePlaceholder" class="image-placeholder">
+                        <p>Uploaded Image Preview</p>
+                    </div>
+                    <img id="imagePreview" src="#" alt="Image Preview" style="display: none;" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript directly in the HTML -->
+<script>
+    function showFlashMessage() {
+        const flashMessage = document.getElementById("flashMessage");
+        flashMessage.style.display = "block";
+
+        setTimeout(() => {
+            flashMessage.style.display = "none";
+        }, 1500);
+    }
+
+    function previewImage() {
+        const fileInput = document.getElementById("file");
+        const imagePreview = document.getElementById("imagePreview");
+        const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePlaceholder.style.display = "none";
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = "block";
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            imagePreview.style.display = "none";
+            imagePlaceholder.style.display = "flex";
+        }
+    }
+</script>
+<script>
+    // Function to fetch the cart count and update the cart icon
+    function updateCartCount() {
+        fetch('/cart_count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+
+
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+
+
+
+
+

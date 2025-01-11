@@ -1,0 +1,130 @@
+/* Main Pricing Container Styling */
+.pricing-container {
+    background-color: #1c2328; /* Dark grey for container background */
+    border: 2px solid #ffffff; /* White border for contrast */
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+    max-width: 1200px; /* Maximum width for larger screens */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    color: #ffffff;
+    width: 90%; /* Responsive width for smaller screens */
+}
+
+/* Pricing Row for Flexbox Layout */
+.pricing-row {
+    display: flex;
+    flex-wrap: wrap; /* Ensures items wrap on smaller screens */
+    justify-content: space-between;
+    gap: 20px; /* Space between plan boxes */
+}
+
+/* Individual Plan Box Styling */
+.plan-box {
+    background-color: #001f3f; /* Dark blue for plan background */
+    border: 2px solid #ffffff; /* White border for contrast */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    padding: 2rem;
+    flex: 1 1 calc(33.333% - 40px); /* Flexible width for 3 columns with gaps */
+    max-width: 350px; /* Maximum width for larger screens */
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; /* Prevents overflow of content */
+}
+
+.plan-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Elevated shadow on hover */
+}
+
+/* Image Container Styling */
+.image-container {
+    width: 100%;
+    padding-top: 100%; /* Makes the container a square */
+    position: relative; /* Ensures absolute positioning inside */
+    margin-bottom: 1rem; /* Space below the image */
+    border-radius: 6px; /* Rounded corners for images */
+    background-color: #000; /* Fallback background for loading */
+    overflow: hidden;
+}
+
+.subscription-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image fits without distortion */
+}
+
+/* Title, Price, and Features Styling */
+.plan-box h3 {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.plan-box .price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #00d4ff; /* Accent color for price */
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.plan-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    color: #ffffff;
+    font-size: 1rem;
+    text-align: center; /* Align list items to the center */
+}
+
+/* List Item Styling */
+.plan-box ul li {
+    padding: 4px 0;
+    font-size: 1rem;
+}
+
+/* Button Styling */
+.btn-pricing-secondary {
+    background-color: #007bff; /* Blue button background */
+    color: #ffffff; /* White text */
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+.btn-pricing-secondary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .plan-box {
+        flex: 1 1 100%; /* Full width for smaller screens */
+        max-width: 100%;
+        margin-bottom: 20px; /* Add spacing between boxes */
+    }
+
+    .image-container {
+        padding-top: 100%; /* Keep the square ratio on mobile */
+    }
+}
+
+@media (min-width: 769px) {
+    .pricing-row {
+        justify-content: space-evenly; /* Evenly distribute items in row */
+    }
+}

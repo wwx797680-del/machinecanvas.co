@@ -1,0 +1,24 @@
+<h2>Select Download Options</h2>
+<p>Choose your preferred file type and resolution for each image:</p>
+
+<form action="{{ url_for('process_download_options') }}" method="POST">
+    {% for link in links_info %}
+        <h3>{{ link.filename }}</h3>
+        
+        <label for="format_{{ link.download_token }}">File Format:</label>
+        <select name="format_{{ link.download_token }}">
+            {% for option, details in download_options.items() %}
+                <option value="{{ option }}">{{ details.format | upper }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="size_{{ link.download_token }}">Pixel Size:</label>
+        <select name="size_{{ link.download_token }}">
+            <option value="original">Original</option>
+            <option value="small">Small (640x480)</option>
+            <option value="medium">Medium (1280x960)</option>
+            <option value="large">Large (1920x1440)</option>
+        </select>
+    {% endfor %}
+    <button type="submit">Confirm and Download</button>
+</form>

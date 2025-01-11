@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicles Collection - Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='category.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Main Body Section for Vehicles Images -->
+<div class="container">
+    <h1 style="color: white;">Vehicles Image Collection</h1>
+
+    <!-- Static Vehicles Images with Details -->
+    <div class="category-grid">
+        {% for i in range(1, 5) %}
+        <div class="category-box">
+            <img src="{{ url_for('static', filename='uploads/vehicles/vehicles' ~ i ~ '.webp') }}" 
+                 alt="Vehicles Image {{ i }}" 
+                 class="category-image">
+            <div class="image-details">
+                <p>Image Number: {{ i }}</p>
+                <p>Price: ${{ 10 + (i - 1) * 5 }}</p>
+                <button class="download-button" 
+                        data-image-id="{{ i }}" 
+                        data-image-name="vehicles{{ i }}.webp"
+                        data-image-price="{{ 10 + (i - 1) * 5 }}">
+                    Download Options
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Dynamically Rendered Vehicles Images from User Uploads -->
+    <div class="category-grid">
+        {% set vehicle_images = uploaded_images|selectattr("category", "equalto", "vehicles")|list %}
+        {% if vehicle_images %}
+        {% for image in vehicle_images %}
+        <div class="category-box image-container">
+            <!-- Display Image -->
+            <img src="{{ url_for('uploaded_file', filename=image.filename) }}" 
+                 alt="Uploaded Vehicles Image {{ image.id }}" 
+                 class="category-image">
+
+            <!-- Image Details -->
+            <div class="image-details">
+                <p>Image Number: {{ image.id }}</p>
+                <p>Price: ${{ image.price }}</p>
+                <button class="download-button" 
+                        data-image-id="{{ image.id }}" 
+                        data-image-name="{{ image.filename }}"
+                        data-image-price="{{ image.price }}">
+                    Download Options
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <!-- Dummy container displayed if no uploaded images are in the "vehicles" category -->
+        <div class="category-box dummy-container">
+            <div class="awaiting-image-text">
+                <p>Awaiting Image</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal for Download Options -->
+<div id="download-modal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Select Download Options</h2>
+        <form id="download-options-form">
+            <input type="hidden" name="image_id" id="modal-image-id">
+            <label for="file-type">File Type:</label>
+            <select name="file_type" id="file-type" required>
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="pdf">PDF</option>
+            </select>
+            <label for="image-size">Size:</label>
+            <select name="image_size" id="image-size" required>
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+            </select>
+            <label for="image-quality">Quality:</label>
+            <select name="image_quality" id="image-quality" required>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button type="submit" class="submit-button">Add to Cart</button>
+        </form>
+        <button id="close-modal" class="close-button">Close</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const downloadButtons = document.querySelectorAll(".download-button");
+        const modal = document.getElementById("download-modal");
+        const modalImageId = document.getElementById("modal-image-id");
+        const closeModalButton = document.getElementById("close-modal");
+        const downloadForm = document.getElementById("download-options-form");
+
+        // Open Modal
+        downloadButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                modal.style.display = "block";
+                modalImageId.value = this.dataset.imageId; // Set image ID in hidden input
+            });
+        });
+
+        // Close Modal
+        closeModalButton.addEventListener("click", function () {
+            modal.style.display = "none";
+        });
+
+        // Add to Cart
+        downloadForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(downloadForm);
+
+            fetch("/add_to_cart", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire("Success", "Image added to cart!", "success");
+                        modal.style.display = "none";
+                    } else {
+                        Swal.fire("Error", "Failed to add image to cart.", "error");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error adding image to cart:", err);
+                });
+        });
+    });
+</script>
+{% endblock %}

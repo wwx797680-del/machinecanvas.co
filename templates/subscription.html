@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock AI Images - Update Subscription</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <!-- Header with logo -->
+    <header>
+        <div class="logo">
+            <a href="/">
+                <img src="{{ url_for('static', filename='uploads/index_images/MACHINE.png') }}" alt="Machine Canvas Logo">
+            </a>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <ul class="navbar">
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Images</a>
+                <ul class="dropdown-content">
+                    {% for category in ["abstract", "nature", "animals", "technology", "people", "architecture", "art_design", "business", "fashion", "food_drink", "transport", "home_decor", "animated", "miscellaneous"] %}
+                    <li><a href="{{ url_for('category_page', category_name=category) }}">{{ category.replace('_', ' ').title() }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <li><a href="/upload">Upload</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Profile</a>
+                <ul class="dropdown-content">
+                    <li><a href="/signup">Sign Up</a></li>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="{{ url_for('my_images') }}">My Images</a></li>
+                    <li><a href="{{ url_for('purchase_history') }}">Purchase History</a></li>
+                    <li><a href="{{ url_for('general_settings') }}">Settings</a></li>
+                    <li><a href="/logout">Log Out</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Subscription Update Form -->
+<div class="container">
+    <h1>Update Your Subscription</h1>
+    <form method="POST">
+        <label for="subscription">Choose Subscription:</label>
+        <select id="subscription" name="plan_id" required>
+            <option value="1" {% if subscription == 'free' %}selected{% endif %}>Free</option>
+            <option value="2" {% if subscription == 'premium' %}selected{% endif %}>Premium</option>
+            <option value="3" {% if subscription == 'pro' %}selected{% endif %}>Pro</option>
+        </select>
+        <button type="submit" formaction="{{ url_for('subscribe', plan_id='') }}{{ '' }}" class="subscription-button">
+            Update Subscription
+        </button>
+    </form>
+</div>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Stock AI Images. All Rights Reserved.</p>
+    </footer>
+    <script>
+        document.getElementById("subscription").addEventListener("change", function() {
+            let selectedPlanId = this.value;
+            document.querySelector(".subscription-button").setAttribute("formaction", `/subscribe/${selectedPlanId}`);
+        });
+    </script>
+    <script>
+        // Function to fetch the cart count and update the cart icon
+        function updateCartCount() {
+            fetch('/cart_count')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cart_count !== undefined) {
+                        const cartCountElement = document.querySelector('.cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = data.cart_count;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching cart count:', error));
+        }
+    
+        // Call the function on page load
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+    </script>
+    
+    
+</body>
+</html>

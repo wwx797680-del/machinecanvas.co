@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Plans - Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='pricing.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<h2 class="pricing-title">Subscription Plans</h2>
+<div class="pricing-container">
+    <div class="pricing-row">
+
+        <!-- Basic Plan -->
+<div class="plan-box">
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='uploads/index_images/basic.webp') }}" alt="Basic Plan" class="subscription-image">
+    </div>
+    <h3>Basic</h3>
+    <p class="price">$10/month</p>
+    <ul>
+        <li>Up to 10 image uploads per month</li>
+        <li>Access to basic features</li>
+    </ul>
+    <form action="{{ url_for('subscription_checkout', plan_id=2) }}" method="GET">
+        <button type="submit" class="btn-pricing-primary">Select Basic</button>
+    </form>
+</div>
+
+<!-- Pro Plan -->
+<div class="plan-box">
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='uploads/index_images/pro.webp') }}" alt="Pro Plan" class="subscription-image">
+    </div>
+    <h3>Pro</h3>
+    <p class="price">$25/month</p>
+    <ul>
+        <li>Up to 50 image uploads per month</li>
+        <li>Access to all platform features</li>
+    </ul>
+    <form action="{{ url_for('subscription_checkout', plan_id=3) }}" method="GET">
+        <button type="submit" class="btn-pricing-primary">Select Pro</button>
+    </form>
+</div>
+
+<!-- Premium Plan -->
+<div class="plan-box">
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='uploads/index_images/premium.webp') }}" alt="Premium Plan" class="subscription-image">
+    </div>
+    <h3>Premium</h3> 
+    <p class="price">$50/month</p>
+    <ul>
+        <li>Unlimited image uploads</li>
+        <li>Priority support</li>
+        <li>Reduced revenue share on sales</li>
+    </ul>
+    <form action="{{ url_for('subscription_checkout', plan_id=4) }}" method="GET">
+        <button type="submit" class="btn-pricing-primary">Select Premium</button>
+    </form>
+</div>
+
+
+        <!-- Credits Option -->
+        <div class="plan-box">
+            <div class="image-container">
+                <img src="{{ url_for('static', filename='uploads/index_images/credits.webp') }}" alt="Credits Option" class="subscription-image">
+            </div>
+            <h3>No Subscription - Credits</h3>
+            <ul>
+                <li>5 credits - $5</li>
+                <li>10 credits - $10</li>
+                <li>25 credits - $20</li>
+                <li>50 credits - $30</li>
+            </ul>
+            <form action="{{ url_for('purchase_credits') }}" method="GET">
+                <button type="submit" class="btn-pricing-primary">Buy Credits</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // Function to fetch the cart count and update the cart icon
+    function updateCartCount() {
+        fetch('/cart_count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Shopping Cart - Stock AI Images{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cart.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-content">
+        <div class="logo">
+            <a href="/">
+                <img src="{{ url_for('static', filename='uploads/index_images/MACHINE.png') }}" alt="Machine Canvas Logo">
+            </a>
+        </div>
+        <div class="cart-icon">
+            <a href="{{ url_for('cart') }}">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+        {% if session.get('username') %}
+        <div class="header-messages">
+            <div class="welcome-message">Welcome, {{ session['username'] }}</div>
+            {% if credits_remaining is not none %}
+            <div class="credits-message">
+                <p class="{% if credits_remaining > 0 %}text-green{% else %}text-red{% endif %} font-bold">
+                    Credits remaining: {{ credits_remaining if credits_remaining is not none else "N/A" }}
+                </p>
+            </div>
+            <div class="upload-limit-message">
+                <p>Upload Limit: {{ upload_limit if upload_limit is not none else "N/A" }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <ul class="navbar">
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Images</a>
+                <ul class="dropdown-content">
+                    {% for category in categories %}
+                    <li><a href="{{ url_for('category_page', category_name=category) }}">{{ category.replace('_', ' ').title() }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <li><a href="{{ url_for('upload_image') }}">Upload</a></li>
+            <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Profile</a>
+                <ul class="dropdown-content">
+                    <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('profile_images') }}">My Images</a></li>
+                    <li><a href="{{ url_for('saved_images') }}">Saved Images</a></li>
+                    <li><a href="{{ url_for('purchase_history') }}">Purchase History</a></li>
+                    <li><a href="{{ url_for('profile_settings') }}">Settings</a></li>
+                    <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="cart-main-container">
+        <div class="cart-container">
+            {% if cart_items %}
+                <div class="cart-content">
+                    {% for item in cart_items %}
+                    <div class="cart-item">
+                        <div class="cart-image-box">
+                            <img src="{{ item.thumbnail }}" alt="{{ item.name }}" class="cart-image">
+                        </div>
+                        <div class="cart-details">
+                            <p><strong>{{ item.name }}</strong></p>
+                            {% if item.type == 'regular' %}
+                                {% if item.file_type %}
+                                <p>File Type: {{ item.file_type.upper() }}</p>
+                                {% endif %}
+                                {% if item.image_size %}
+                                <p>Size: {{ item.image_size.title() }}</p>
+                                {% endif %}
+                            {% elif item.type == 'subscription' %}
+                                <p>Plan: {{ item.plan }}</p>
+                                <ul>
+                                    {% for feature in item.features %}
+                                    <li>{{ feature }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% elif item.type == 'credits' %}
+                                <p>Credits: {{ item.credits }}</p>
+                            {% endif %}
+                            <p>Price: ${{ "%.2f"|format(item.price) }}</p>
+                            <p>Subtotal: ${{ "%.2f"|format(item.price * item.quantity) }}</p>
+                        </div>
+                        <button onclick="removeFromCart('{{ item.id }}')" class="cart-remove-button">Remove</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="cart-summary">
+                    <p><strong>Total:</strong> ${{ "%.2f"|format(total_amount) }}</p>
+                    <form action="{{ url_for('checkout') }}" method="POST">
+                        <button type="submit" class="cart-checkout-button">Proceed to Checkout</button>
+                    </form>
+                </div>
+                
+            {% else %}
+            <div class="cart-empty">
+                <p>Your cart is currently empty.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        function updateCartCount() {
+            fetch('/cart_count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count || 0;
+                    }
+                })
+                .catch(error => console.error('Error fetching cart count:', error));
+        }
+
+        function removeFromCart(itemId) {
+            fetch(`/remove_from_cart/${itemId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartCount();
+                    location.reload();
+                } else {
+                    console.error(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error while removing item:', err);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Stock AI Images. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category_name.replace('_', ' ').title() }} Collection - Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='category.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="color: white;">{{ category_name.replace('_', ' ').title() }} Image Collection</h1>
+
+    <!-- Flash Message Container -->
+    <div id="flashMessage" class="alert" style="display: none;"></div>
+
+    <!-- Dynamically Rendered Images from User Uploads -->
+    <div class="category-grid">
+        {% if category_images %}
+            {% for image in category_images %}
+                <div class="category-box">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='uploads/' + image.category + '/' + image.filename) }}" 
+                             alt="Uploaded {{ image.category.replace('_', ' ').title() }} Image {{ image.id }}" 
+                             class="category-image">
+                        <!-- Save Icon -->
+                        <button onclick="saveImage('{{ image.category }}', '{{ image.id }}')" class="save-icon">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <!-- Download Icon -->
+                        <button onclick="showDownloadModal('{{ image.id }}', '{{ image.filename }}', '{{ image.price }}')" class="download-icon">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                    <div class="image-details">
+                        <div class="scrolling-text">
+                            <p>Image Number: {{ image.id }}</p>
+                            <p>Price: ${{ image.price }}</p>
+                        </div>
+                        <button 
+                            class="buy-button" 
+                            onclick="addToCart('{{ image.id }}', '{{ image.filename }}', '{{ image.price }}', '{{ image.category }}')">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div id="dummyContainer" class="dummy-container">
+                <div class="awaiting-image-text">
+                    <p>Awaiting Image</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Download Options Modal -->
+<div id="download-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close-button">&times;</span>
+        <h2>Select Download Options</h2>
+        <form id="download-options-form">
+            <input type="hidden" name="item_id" id="modal-image-id">
+            <input type="hidden" name="name" id="modal-image-name">
+            <input type="hidden" name="price" id="modal-image-price">
+            <label for="file-type">File Type:</label>
+            <select name="file_type" id="file-type" required>
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="pdf">PDF</option>
+            </select>
+            <label for="image-size">Image Size:</label>
+            <select name="image_size" id="image-size" required>
+                <option value="small">Small (640x480)</option>
+                <option value="medium">Medium (1280x960)</option>
+                <option value="large">Large (1920x1440)</option>
+            </select>
+            <button type="submit" class="submit-button">Add to Cart</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Flash Message Display
+function showFlashMessage(message) {
+    const flashMessage = document.getElementById("flashMessage");
+    flashMessage.innerText = message;
+    flashMessage.style.display = "block";
+    setTimeout(() => {
+        flashMessage.style.display = "none";
+    }, 2000);
+}
+
+// Save Image
+function saveImage(category, imageId) {
+    fetch(`/save_image/${imageId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => showFlashMessage(data.message))
+    .catch(error => console.error("Error:", error));
+}
+
+// Add Item to Cart
+function addToCart(itemId, filename, price, category) {
+    const formData = new FormData();
+    formData.append('item_id', itemId);
+    formData.append('filename', filename);
+    formData.append('price', price);
+    formData.append('category', category);
+    formData.append('file_type', 'jpeg'); // Default file type
+    formData.append('image_size', 'medium'); // Default size
+
+    fetch('/add_to_cart', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showFlashMessage('Item added to cart!');
+            updateCartCount();
+        } else {
+            showFlashMessage('Failed to add item to cart.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Update Cart Count
+function updateCartCount() {
+    fetch('/cart_count')
+        .then(response => response.json())
+        .then(data => {
+            const cartCountElement = document.querySelector('.cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = data.cart_count || 0;
+            }
+        })
+        .catch(error => console.error('Error fetching cart count:', error));
+}
+
+// Show Download Modal
+function showDownloadModal(imageId, filename, price) {
+    const modal = document.getElementById('download-modal');
+    document.getElementById('modal-image-id').value = imageId;
+    document.getElementById('modal-image-name').value = filename;
+    document.getElementById('modal-image-price').value = price;
+    modal.classList.add('active');
+}
+
+// Close Download Modal
+document.getElementById('close-modal').addEventListener('click', function () {
+    document.getElementById('download-modal').classList.remove('active');
+});
+
+// Handle Download Options Form Submission
+document.getElementById('download-options-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+
+    fetch('/add_to_cart', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showFlashMessage('Item added to cart with selected download options!');
+            document.getElementById('download-modal').classList.remove('active');
+            updateCartCount();
+        } else {
+            showFlashMessage('Failed to add item to cart.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// Call cart count update on page load
+document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,218 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #000;
+    color: white;
+}
+
+/* Header */
+header {
+    background-color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo img {
+    width: 150px;
+    height: auto;
+}
+
+/* Cart & Welcome Message */
+.cart-icon, .welcome-message {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Navbar */
+nav {
+    background-color: #444;
+    width: 100%;
+}
+
+.navbar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.navbar li {
+    padding: 15px 20px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px;
+}
+
+.navbar a:hover {
+    background-color: #555;
+    transition: background-color 0.3s ease;
+}
+
+/* Dropdown */
+.navbar .dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.navbar .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    border-radius: 6px;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* Grid Layout for Categories & Index */
+.category-grid, .index-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Category Box */
+.category-box, .index-box {
+    background-color: #001f3f;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dummy-container {
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    height: 300px;
+    color: #888;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+/* Image Styling */
+.category-image, .index-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.category-image:hover {
+    transform: scale(1.05);
+    z-index: 5;
+    border: 2px solid black;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Image Details */
+.image-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 8px 0;
+    font-size: 16px;
+    color: #aaa;
+}
+
+.category-box:hover .image-details div {
+    animation: scroll-text 5s linear infinite;
+}
+
+@keyframes scroll-text {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+.image-details div {
+    display: flex;
+    gap: 15px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.image-details p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.image-details .buy-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    margin-top: 8px;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+}
+
+.image-details .buy-button:hover {
+    background-color: #0056b3;
+}
+
+/* Prevent Right-click on Images */
+.category-image {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Footer */
+footer {
+    background-color: #001f3f;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .category-grid, .index-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

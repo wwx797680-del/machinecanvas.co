@@ -1,0 +1,370 @@
+/* Basic styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #000;
+    color: white;
+}
+
+
+/* Header styling */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 10px 20px; /* Keep minimal padding to avoid horizontal scroll */
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+}
+
+/* Logo styling */
+.logo img {
+    width: 150px;
+}
+
+/* Welcome message styling */
+.welcome-message {
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px; /* Adjust padding for slight left shift */
+}
+
+/* Credits message styling */
+.credits-message {
+    font-size: 1em;
+    padding-bottom: 10px;
+}
+
+/* Extra Styling for Available Credits and Manage Subscription Sections */
+.available-credits, .manage-subscription {
+    text-align: center;
+}
+
+.available-credits p, .manage-subscription p {
+    font-size: 16px;
+    color: #555;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+
+.header-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.text-green {
+    color: green;
+}
+.text-red {
+    color: red;
+}
+.font-bold {
+    font-weight: bold;
+}
+
+
+
+.cart-icon {
+    position: relative;
+    font-size: 1.5em;
+    color: #5b0363; /* Adjust this color as needed */
+    margin-right: 20px;
+}
+
+.cart-icon .cart-count {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+/* Navbar Styling */
+nav {
+    background-color: #444;
+    width: 100%;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+}
+
+.navbar li {
+    padding: 15px 20px;
+    position: relative;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px;
+}
+
+.navbar a:hover {
+    background-color: #555;
+    transition: background-color 0.3s ease;
+}
+
+/* Dropdown Menu Styling */
+.navbar .dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 1;
+}
+
+.navbar .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    border-radius: 6px;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* Dropdown item styling */
+.navbar .dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar .dropdown ul li {
+    padding: 10px;
+    border-bottom: 1px solid #555;
+}
+
+.navbar .dropdown ul li a {
+    padding: 10px;
+    display: block;
+}
+
+.navbar .dropdown ul li a:hover {
+    background-color: #666;
+}
+
+h1 {
+    color: white; /* Ensure titles are white */
+    font-size: 2em;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Global form styling */
+form {
+    color: black;
+}
+
+form label {
+    color: black;
+}
+
+form input {
+    color: black;
+    background-color: white; /* Ensures the input background is white */
+}
+
+form button {
+    color: black;
+}
+
+/* If there's a dark theme or any other rule making text white */
+body, html {
+    color: black; /* This will override any white text globally */
+}
+
+
+
+/* Container for Main Content */
+.container {
+    flex: 1;
+    padding: 20px; /* Space around main content */
+    margin-top: 5px; /* Adjust to bring content closer to the navbar */
+}
+
+/* Styling for the Category Grid */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid layout */
+    gap: 20px; /* Space between grid items */
+    padding: 10px; /* Padding around the grid */
+}
+
+/* Category Box Styling */
+.category-box {
+    background-color: #001f3f;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    height: 300px;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+}
+
+/* Zoom effect and shadow on hover */
+.category-box:hover .category-image {
+    transform: scale(1.05); /* Slight zoom */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Centered Heading for Overlay Effect */
+.category-box h2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin: 0;
+}
+
+/* Image Styling */
+.category-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    object-fit: cover; /* Consistent image cropping */
+    transition: transform 0.3s ease;
+}
+
+
+/* Ensures buttons are consistent */
+/* Styling the <a> tag to look like a button */
+.buy-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.buy-button:hover {
+    background-color: #0056b3;
+}
+
+/* Flash Message Styling */
+.flash-messages .alert {
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 1em;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}
+
+.alert-success {
+    background-color: #28a745; /* Green background */
+    color: #fff; /* White text */
+}
+
+.alert-danger {
+    background-color: #dc3545; /* Red background */
+    color: #fff; /* White text */
+}
+
+.alert-info {
+    background-color: #17a2b8; /* Teal background */
+    color: #fff; /* White text */
+}
+
+/* Custom Padding and Margins for Consistent Spacing */
+.flash-messages {
+    padding: 10px 20px;
+}
+
+
+/* Footer Styling */
+footer {
+    background-color: #001f3f;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .navbar {
+        flex-direction: column;
+    }
+
+    .navbar li {
+        text-align: center;
+    }
+
+    .navbar .dropdown-content {
+        position: static;
+    }
+}
+
+/* Category Page Styles */
+body.category {
+    background-color: #fff; /* White background for category pages */
+}
+
+.container.category {
+    padding: 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+

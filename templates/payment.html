@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Payment{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='checkout.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<main class="payment-container">
+    <div class="payment-main-container">
+        <h1>Payment Options</h1>
+
+        <!-- Order Summary Section -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <p><strong>Total Amount:</strong> ${{ "%.2f"|format(total_amount or 0) }}</p>
+        </div>
+
+        <!-- Payment Methods Section -->
+        <div class="payment-methods">
+            <h2>Choose Payment Method</h2>
+
+            <!-- Stripe Payment Button -->
+            <button id="stripe-button" class="pay-button">Pay with Stripe</button>
+
+            <!-- PayPal Payment Button -->
+            <div id="paypal-button-container"></div>
+        </div>
+
+        <!-- Accepted Payment Methods -->
+        <div class="accepted-payment-methods">
+            <h3>Accepted Payment Methods</h3>
+            <div class="payment-icons">
+                <img src="{{ url_for('static', filename='uploads/index_images/visa logo.png') }}" alt="Visa" class="payment-icon">
+                <img src="{{ url_for('static', filename='uploads/index_images/mastercard logo.svg') }}" alt="MasterCard" class="payment-icon">
+                <img src="{{ url_for('static', filename='uploads/index_images/paypal-mark-color.svg') }}" alt="PayPal" class="payment-icon">
+                <img src="{{ url_for('static', filename='uploads/index_images/AMEX-web-tile.jpg') }}" alt="American Express" class="payment-icon">
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&components=buttons"></script>
+
+<!-- PayPal Button Integration -->
+<script>
+    paypal.Buttons({
+        style: {
+            layout: 'horizontal',
+            color: 'gold',
+            shape: 'pill',
+            label: 'paypal'
+        },
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{ "%.2f"|format(total_amount) }}' // Total amount dynamically
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                alert('Transaction completed by ' + details.payer.name.given_name);
+                window.location.href = "{{ url_for('success') }}"; // Redirect to success page
+            });
+        },
+        onCancel: function(data) {
+            alert('Transaction canceled.');
+        },
+        onError: function(err) {
+            console.error('PayPal Button Error:', err);
+            alert('An error occurred with PayPal. Please try again.');
+        }
+    }).render('#paypal-button-container');
+</script>
+
+<!-- Stripe JS -->
+<script src="https://js.stripe.com/v3/"></script>
+
+<!-- Stripe Integration -->
+<script>
+    var stripe = Stripe('{{ stripe_publishable_key }}');  // Use the Stripe publishable key passed from Flask
+    var checkoutButton = document.getElementById('stripe-button');
+
+    checkoutButton.addEventListener('click', function() {
+        fetch('/create-checkout-session', {  // Backend route to create a checkout session
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                total_amount: {{ total_amount | int }}  // Pass total amount dynamically as integer
+            })
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Failed to create Stripe session');
+            }
+            return response.json();
+        })
+        .then(function(sessionData) {
+            if (sessionData.id) {
+                return stripe.redirectToCheckout({ sessionId: sessionData.id });
+            } else {
+                alert('Session creation failed: ' + sessionData.error);
+            }
+        })
+        .catch(function(error) {
+            console.error("Error:", error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+</script>
+
+{% endblock %}

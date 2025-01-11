@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Abstract Collection - Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='my_images.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="uploaded-images-container">
+    <h1>My Uploaded Images</h1>
+    
+    <!-- Grid for uploaded images -->
+    <div class="uploaded-grid">
+        {% if uploaded_images %}
+            {% for image in uploaded_images %}
+            <div class="uploaded-box">
+                <!-- Delete Button -->
+                <form action="{{ url_for('delete_image', image_id=image['id']) }}" method="POST">
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+                
+                <!-- Display Image -->
+                <img src="{{ url_for('static', filename='uploads/' + image['category'] + '/' + image['filename']) }}" 
+                     alt="Uploaded Image {{ image['id'] }}" 
+                     class="uploaded-image">
+                
+                <!-- Category Title -->
+                <h2>{{ image['category'].replace('_', ' ').title() }}</h2>
+                
+                <!-- Price -->
+                <p>Price: ${{ image['price'] }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No images uploaded yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this image? This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the form if confirmed
+                event.target.closest('form').submit();
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Attach confirmDelete to all delete buttons
+        const deleteButtons = document.querySelectorAll(".delete-button");
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", confirmDelete);
+        });
+    });
+</script>
+<script>
+    // Function to fetch the cart count and update the cart icon
+    function updateCartCount() {
+        fetch('/cart_count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+
+
+
+{% endblock %}

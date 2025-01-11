@@ -1,0 +1,4 @@
+machinecanvas.co {
+    reverse_proxy 127.0.0.1:5000
+    tls machinecanvas.co-crt.pem machinecanvas.co-key.pem
+}

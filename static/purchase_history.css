@@ -1,0 +1,41 @@
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.category-box {
+    background-color: #001f3f;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    color: white;
+    position: relative;
+    height: 300px;
+}
+
+.category-box.dummy {
+    background-color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-box.dummy .image-placeholder {
+    font-size: 1.5em;
+    color: #ccc;
+}
+
+.category-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.category-box:hover .category-image {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}

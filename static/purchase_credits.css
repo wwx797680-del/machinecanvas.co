@@ -1,0 +1,118 @@
+/* Main Purchase Credits Container Styling */
+.purchase-credits-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #333131; /* Dark grey background */
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    color: #ffffff; /* White text color for contrast */
+    text-align: center;
+}
+
+/* Title Styling */
+.purchase-credits-container h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #ffffff; /* White heading text */
+}
+
+.purchase-credits-container p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    color: #cccccc; /* Light grey for paragraph text */
+}
+
+
+/* Flex Layout for Row */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center the cards */
+    gap: 2rem; /* Add more space between columns */
+}
+
+/* Card Styling */
+.card {
+    background-color: #444444; /* Dark grey for card background */
+    border: 1px solid #555555; /* Subtle border for separation */
+    border-radius: 8px;
+    width: 100%;
+    max-width: 300px; /* Adjusted width */
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #ffffff; /* White text for card content */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Adds a lift effect on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Elevated shadow on hover */
+}
+
+/* Container for the credit image */
+.credit-image-container {
+    width: 100%; /* Full width of the card */
+    max-width: 150px; /* Limit the size if needed */
+    margin: 0 auto 1rem; /* Center and add spacing below */
+    overflow: hidden; /* Crop anything outside the container */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for the image container */
+}
+
+/* Styling for the image */
+.credit-image {
+    width: 100%; /* Ensure it fills the container width */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove inline-block spacing issues */
+    object-fit: contain; /* Adjust to 'cover' or 'contain' as per your preference */
+}
+
+/* Credit and Price Styling */
+.card h3 {
+    font-size: 1.8rem;
+    color: #ffffff; /* White text for card headings */
+    margin-bottom: 0.5rem;
+}
+
+.price {
+    font-size: 1.5rem; /* Increased size for better visibility */
+    color: #00d4ff; /* Light blue for price */
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #007bff; /* Blue button background */
+    color: white;
+    padding: 12px 25px; /* Adjusted padding for larger button */
+    border-radius: 5px;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarges the button on hover */
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+}
+
+
+
+
+

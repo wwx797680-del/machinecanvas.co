@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Account Deletion - Stock AI Images</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}">
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1>Are you sure you want to delete your account?</h1>
+        <p class="text-danger">This action cannot be undone. All your data will be permanently deleted.</p>
+        
+        <form action="{{ url_for('delete_account') }}" method="POST">
+            <button type="submit" class="btn btn-danger">Yes, Delete My Account</button>
+            <a href="{{ url_for('delete_account') }}" class="btn btn-danger">Delete Account</a>
+        </form>
+    </div>
+</body>
+</html>

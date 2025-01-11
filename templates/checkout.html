@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='checkout.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+<main class="checkout-container">
+    <div class="checkout-main-container">
+        <h1>Checkout</h1>
+
+        <!-- Cart Items Section -->
+        <div class="cart-container">
+            {% if cart_items %}
+            <div class="cart-content">
+                <table class="cart-items-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Details</th>
+                            <th>File Type</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td>
+                                <div class="cart-image-box">
+                                    <img src="{{ item.get('thumbnail', url_for('static', filename='images/default-placeholder.png')) }}" 
+                                         alt="{{ item.get('name', 'N/A') }}" 
+                                         class="cart-image">
+                                </div>
+                            </td>
+                            <td><strong>{{ item.get('name', 'N/A') }}</strong></td>
+                            <td>{{ item.get('file_type', 'N/A')|upper }}</td>
+                            <td>{{ item.get('image_size', 'N/A')|title }}</td>
+                            <td>${{ "%.2f"|format(item.get('price', 0)) }}</td>
+                            <td>${{ "%.2f"|format(item.get('price', 0) * item.get('quantity', 1)) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="cart-summary">
+                    <p><strong>Total:</strong> ${{ "%.2f"|format(total_amount or 0) }}</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="cart-empty">
+                <p>No items in your cart.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<!-- Payment Section -->
+<div class="payment-container">
+    <div class="payment-section">
+        <h2>Secure Payment</h2>
+        <div class="payment-buttons">
+            <!-- Stripe Payment Button -->
+            <form method="POST" action="{{ url_for('checkout') }}">
+                <input type="hidden" name="payment_method" value="stripe">
+                <button type="submit" class="pay-button">Stripe</button>
+            </form>
+
+            <!-- PayPal Payment Button -->
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+
+    <!-- Accepted Payment Methods -->
+    <div class="accepted-payment-methods">
+        <h3>Accepted Payment Methods</h3>
+        <div class="payment-icons">
+            <img src="{{ url_for('static', filename='uploads/index_images/visa logo.png') }}" alt="Visa" class="payment-icon">
+            <img src="{{ url_for('static', filename='uploads/index_images/mastercard logo.svg') }}" alt="MasterCard" class="payment-icon">
+            <img src="{{ url_for('static', filename='uploads/index_images/paypal-mark-color.svg') }}" alt="PayPal" class="payment-icon">
+            <img src="{{ url_for('static', filename='uploads/index_images/AMEX-web-tile.jpg') }}" alt="American Express" class="payment-icon">
+        </div>
+    </div>
+</div>
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&components=buttons"></script>
+
+<script>
+    // PayPal Button Integration
+    paypal.Buttons({
+        style: {
+            layout: 'horizontal',
+            color: 'gold',
+            shape: 'pill',
+            label: 'paypal'
+        },
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{ "%.2f"|format(total_amount or 0) }}'
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                alert('Transaction completed by ' + details.payer.name.given_name);
+                window.location.href = "{{ url_for('success') }}"; // Redirect to success page
+            });
+        },
+        onCancel: function(data) {
+            alert('Transaction canceled.');
+        },
+        onError: function(err) {
+            console.error('PayPal Button Error:', err);
+            alert('An error occurred with PayPal. Please try again.');
+        }
+    }).render('#paypal-button-container');
+</script>
+
+{% endblock %}

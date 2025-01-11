@@ -1,0 +1,949 @@
+from flask import (
+    Flask, render_template, request, redirect, url_for, session, flash,
+    send_file, abort
+)
+from flask_mysqldb import MySQL
+from flask_mail import Mail, Message
+from datetime import datetime, timedelta, date
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from itsdangerous import URLSafeTimedSerializer
+from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+import MySQLdb.cursors
+import os
+import uuid
+import re
+import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Secret key configuration
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+# Database setup for SQLAlchemy (if needed)
+# SQLAlchemy and MySQL configurations
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# MySQL configuration
+app.config.update(
+    MYSQL_HOST=os.getenv('MYSQL_HOST', 'localhost'),
+    MYSQL_USER=os.getenv('MYSQL_USER', 'root'),
+    MYSQL_PASSWORD=os.getenv('MYSQL_PASSWORD', '14031949'),
+    MYSQL_DB=os.getenv('MYSQL_DB', 'machinecanvas'),
+    MYSQL_CURSORCLASS='DictCursor'
+)
+mysql = MySQL(app)
+
+
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # This will load environment variables from a .env file
+
+# Email configurations
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME=os.getenv('MAIL_USERNAME', 'machinecanvas.co@gmail.com'),
+    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD', 'lnhp ivha wuxn duor'),
+    MAIL_DEFAULT_SENDER=os.getenv('MAIL_USERNAME', 'machinecanvas.co@gmail.com')
+)
+mail = Mail(app)
+
+
+# Define the temporary upload directory and the permanent upload folder
+temp_dir = os.path.join(os.getcwd(), 'temp')
+app.config['TEMP_UPLOAD_FOLDER'] = temp_dir
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
+
+# Ensure the temporary and permanent upload folders are created
+os.makedirs(app.config['TEMP_UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Upload folder configuration
+app.config.update(
+    UPLOAD_FOLDER=os.path.join('static', 'uploads'),
+    TEMP_UPLOAD_FOLDER=os.path.join(os.getcwd(), 'temp'),
+    ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif', 'webp'}
+)
+os.makedirs(app.config['TEMP_UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+print(app.config['MAIL_USERNAME'])
+print(app.config['MAIL_PASSWORD'])
+
+
+# Check if file extension is allowed
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+# Create category folders in static/uploads
+categories = [
+    'abstract', 'nature', 'animals', 'technology', 'people', 'architecture',
+    'art-design', 'business', 'fashion', 'food-drink', 'vehicles',
+    'home-decor', 'animated', 'miscellaneous'
+]
+for category in categories:
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], category), exist_ok=True)
+
+
+# Email token generation for confirmation and reset
+def generate_confirmation_token(email):
+    return s.dumps(email, salt='email-confirmation-salt')
+
+
+def verify_confirmation_token(token, expiration=3600):
+    try:
+        email = s.loads(token, salt='email-confirmation-salt', max_age=expiration)
+        return email
+    except Exception:
+        return None
+
+def generate_password_reset_token(email):
+    return s.dumps(email, salt='password-reset-salt')
+
+def verify_password_reset_token(token, expiration=3600):
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=expiration)
+        return email
+    except Exception:
+        return None
+
+# SQLAlchemy models for User and Image
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    images = db.relationship('Image', backref='user', lazy=True)
+
+class Image(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(120), nullable=False)
+    category = db.Column(db.String(120), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+# Route for Home
+@app.route('/', endpoint='home_page')
+def home():
+    return render_template('index.html', email=session.get('email'))
+
+# Context Processor to Inject Categories into All Templates
+@app.context_processor
+def inject_categories():
+    categories = [
+        "abstract", "nature", "animals", "technology", "people", "architecture",
+        "art_design", "business", "fashion", "food_drink", "vehicles",
+        "home_decor", "animated", "miscellaneous"
+    ]
+    return dict(categories=categories)
+
+
+# Signup Route
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    error = None
+    user_id_error = None
+    if request.method == 'POST':
+        email = request.form['email']
+        user_id = request.form['user_id']
+        password = request.form['password']
+
+        cursor = mysql.connection.cursor()
+
+        # Check if email or user_id already exists
+        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+        account_by_email = cursor.fetchone()
+
+        cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
+        account_by_user_id = cursor.fetchone()
+
+        # Error handling for duplicate entries
+        if account_by_email:
+            error = 'This email is already registered. <a href="/login">Login</a>'
+        elif account_by_user_id:
+            user_id_error = 'This username (User ID) is already taken. Please choose another one.'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            error = 'Invalid email address!'
+        elif not email or not password or not user_id:
+            error = 'Please fill out all required fields!'
+
+        # If no errors, hash password and insert into the database
+        if not error and not user_id_error:
+            hashed_password = generate_password_hash(password)
+            cursor.execute(
+                '''
+                INSERT INTO users (email, user_id, password, subscription, confirmed) 
+                VALUES (%s, %s, %s, %s, %s)
+                ''', 
+                (email, user_id, hashed_password, 'free', False)
+            )
+            mysql.connection.commit()
+            cursor.close()
+
+            # Send confirmation email
+            token = generate_confirmation_token(email)
+            confirm_url = url_for('confirm_email', token=token, _external=True)
+            msg = Message("Please confirm your email", recipients=[email])
+            msg.body = f"Hi,\n\nPlease click the link to confirm your email: {confirm_url}"
+
+            try:
+                mail.send(msg)
+                flash('A confirmation email has been sent.', 'success')
+            except Exception as e:
+                    flash('There was an issue sending the email.', 'danger')
+                    print(f"Error sending email: {e}")  # This will show specific errors in the console
+
+
+            return redirect(url_for('login'))
+
+    return render_template('signup.html', error=error, user_id_error=user_id_error)
+
+# Email Confirmation
+@app.route('/confirm/<token>')
+def confirm_email(token):
+    email = verify_confirmation_token(token)
+    if not email:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+    account = cursor.fetchone()
+
+    if account:
+        if account['confirmed']:
+            flash('Account already confirmed. Please log in.', 'success')
+        else:
+            cursor.execute('UPDATE users SET confirmed = %s WHERE email = %s', (True, email))
+            mysql.connection.commit()
+            flash('You have confirmed your account.', 'success')
+    else:
+        flash('No account found. Please sign up.', 'warning')
+
+    return redirect(url_for('login'))
+
+# Route for Login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        if not email or not password:
+            flash('Please provide both email and password.', 'warning')
+            return redirect(url_for('login'))
+
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+        account = cursor.fetchone()
+
+        if account:
+            if not account['confirmed']:
+                flash('Please confirm your email first.', 'warning')
+                return redirect(url_for('login'))
+
+            if check_password_hash(account['password'], password):
+                # Set session variables
+                # After successful login
+                session['user_id'] = account['user_id']
+                session['email'] = account['email'] 
+                session['logged_in'] = True  # Additional flag to indicate logged in status
+
+                
+                flash('Logged in successfully!', 'success')
+                return redirect(url_for('home_page'))
+            else:
+                flash('Incorrect email/password!', 'danger')
+        else:
+            flash('No account found. Please sign up.', 'warning')
+
+    return render_template('login.html')
+
+# Route for Forgotten Password
+@app.route('/forgotten-password', methods=['GET', 'POST'])
+def forgotten_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+        account = cursor.fetchone()
+
+        if account:
+            token = generate_password_reset_token(email)
+            reset_link = url_for('reset_password', token=token, _external=True)
+
+            msg = Message('Password Reset Request', recipients=[email])
+            msg.body = f"To reset your password, click the following link: {reset_link}"
+
+            try:
+                mail.send(msg)
+                flash('A password reset link has been sent to your email address.', 'success')
+            except Exception as e:
+                flash('Failed to send the email. Please try again later.', 'danger')
+        else:
+            flash('No account with that email found.', 'danger')
+
+    return render_template('forgotten_password.html')
+
+# Route for Resetting Password
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        # Validate the token and get the email
+        email = s.loads(token, salt='password-reset-salt', max_age=3600)
+    except Exception:
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('forgotten_password'))
+
+    if request.method == 'POST':
+        # Get the new password from the form
+        new_password = request.form['new_password']
+        hashed_password = generate_password_hash(new_password)
+
+        # Update the password in the database
+        cursor = mysql.connection.cursor()
+        cursor.execute('UPDATE users SET password = %s WHERE email = %s', (hashed_password, email))
+        mysql.connection.commit()
+
+        # Flash success message
+        flash('Your password has been updated. You can now log in.', 'success')
+
+        # Redirect to login page after showing the confirmation
+        return redirect(url_for('login'))
+
+    # Render reset password page (initial GET request)
+    return render_template('reset_password.html', token=token)
+
+@app.route('/')
+def index():
+    email = session.get('email') if 'loggedin' in session else None  # Check if the user is logged in
+    return render_template('index.html', email=email)
+
+# Pricing
+
+@app.route('/pricing')
+def pricing():
+    # Query all available pricing plans from the database
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id, plan_name, price, upload_limit, revenue_share, description FROM pricing_plans")
+    plans = cursor.fetchall()
+    cursor.close()
+
+    # Pass the plans to the pricing template
+    return render_template('pricing.html', plans=plans)
+
+# Subscription route
+from datetime import date
+from flask import session, flash, redirect, url_for, render_template
+
+@app.route('/subscribe/<int:plan_id>', methods=['POST'])
+def subscribe(plan_id):
+    # Check if the user is logged in
+    if 'user_id' not in session:
+        flash('Please log in to subscribe to a plan.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    start_date = date.today()
+
+    # Database connection setup
+    cursor = mysql.connection.cursor(dictionary=True)
+
+    # Fetch the selected plan details
+    cursor.execute("SELECT id, plan_name, upload_limit FROM pricing_plans WHERE id = %s", (plan_id,))
+    plan = cursor.fetchone()
+
+    if not plan:
+        flash('Selected plan does not exist.', 'danger')
+        cursor.close()
+        return redirect(url_for('pricing'))
+    
+    upload_limit = plan.get('upload_limit')
+    credits_remaining = upload_limit if upload_limit else None
+
+    # Check if the user already has a subscription
+    cursor.execute("SELECT * FROM user_subscriptions WHERE user_id = %s", (user_id,))
+    subscription = cursor.fetchone()
+
+    if subscription:
+        # Update the existing subscription
+        cursor.execute("""
+            UPDATE user_subscriptions 
+            SET plan_id = %s, start_date = %s, credits_remaining = %s, uploads_this_month = 0
+            WHERE user_id = %s
+        """, (plan_id, start_date, credits_remaining, user_id))
+        flash(f'Your subscription has been updated to the {plan["plan_name"]} plan!', 'success')
+    else:
+        # Create a new subscription
+        cursor.execute("""
+            INSERT INTO user_subscriptions (user_id, plan_id, start_date, credits_remaining)
+            VALUES (%s, %s, %s, %s)
+        """, (user_id, plan_id, start_date, credits_remaining))
+        flash(f'You have successfully subscribed to the {plan["plan_name"]} plan!', 'success')
+
+    # Commit the changes and close the connection
+    mysql.connection.commit()
+    cursor.close()
+
+    # Redirect to the subscription management page
+    return redirect(url_for('manage_subscription'))
+
+
+# Route to display available PAYG credit packages
+@app.route('/purchase_credits', methods=['GET', 'POST'])
+def purchase_credits():
+    if 'user_id' not in session:
+        flash('Please log in to purchase credits.', 'danger')
+        return redirect(url_for('login'))
+
+    # Available credit packages
+    credit_packages = [
+        {"credits": 5, "price": 5},
+        {"credits": 10, "price": 9},
+        {"credits": 20, "price": 16}
+    ]
+
+    if request.method == 'POST':
+        selected_credits = request.form.get('credits')
+        selected_price = request.form.get('price')
+
+        # Process payment (this would involve connecting to a payment gateway in production)
+        # Assuming payment is successful
+
+        user_id = session['user_id']
+        cursor = mysql.connection.cursor()
+
+        # Check if the user already has credits in the system
+        cursor.execute("SELECT credits FROM user_credits WHERE user_id = %s", (user_id,))
+        user_credits = cursor.fetchone()
+
+        if user_credits:
+            # Update existing credits
+            new_credit_balance = user_credits['credits'] + int(selected_credits)
+            cursor.execute("UPDATE user_credits SET credits = %s WHERE user_id = %s", (new_credit_balance, user_id))
+        else:
+            # Insert new credits record for the user
+            cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (%s, %s)", (user_id, selected_credits))
+
+        mysql.connection.commit()
+        cursor.close()
+
+        flash(f'Successfully purchased {selected_credits} credits!', 'success')
+        return redirect(url_for('settings'))
+
+    return render_template('purchase_credits.html', credit_packages=credit_packages)
+
+
+# AI image checker function
+def is_ai_image(file_path):
+    url = "https://api.example.com/check_ai_image"
+    headers = {'Authorization': 'Bearer YOUR_API_KEY'}
+    with open(file_path, 'rb') as file:
+        response = requests.post(url, files={'file': file}, headers=headers)
+    result = response.json()
+    return result.get('is_ai', False)  # Assuming the API returns a boolean for AI-generated detection
+
+# Upload route
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_image():
+    os.makedirs(app.config['TEMP_UPLOAD_FOLDER'], exist_ok=True)
+
+    if 'user_id' not in session:
+        flash('You must be logged in to upload!', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    if request.method == 'POST':
+        file = request.files.get('file')
+        category = request.form.get('category')
+        price = request.form.get('price')
+
+        if not (file and allowed_file(file.filename) and category and price):
+            flash('Please complete all fields and use a valid file type.', 'danger')
+            return redirect(url_for('upload_image'))
+
+        filename = secure_filename(file.filename)
+        temp_path = os.path.join(app.config['TEMP_UPLOAD_FOLDER'], filename)
+        file.save(temp_path)
+
+        cursor = mysql.connection.cursor()
+        try:
+            # Fetch user's credits information
+            cursor.execute("SELECT credits_remaining FROM user_subscriptions WHERE user_id = %s", (user_id,))
+            user_subscription = cursor.fetchone()
+
+            if user_subscription:
+                credits_remaining = user_subscription.get('credits_remaining', 0)
+                print(f"User ID: {user_id} has {credits_remaining} credits remaining")  # Debugging statement
+
+                if credits_remaining > 0:
+                    # Check if file is AI-generated
+                    if is_ai_image(temp_path):
+                        category_folder = os.path.join(app.config['UPLOAD_FOLDER'], category)
+                        os.makedirs(category_folder, exist_ok=True)
+                        final_path = os.path.join(category_folder, filename)
+                        os.rename(temp_path, final_path)
+
+                        # Insert image details into the database
+                        cursor.execute(
+                            'INSERT INTO images (filename, category, price, user_id) VALUES (%s, %s, %s, %s)',
+                            (filename, category, price, user_id)
+                        )
+
+                        # Deduct one credit
+                        cursor.execute(
+                            'UPDATE user_subscriptions SET credits_remaining = credits_remaining - 1 WHERE user_id = %s',
+                            (user_id,)
+                        )
+
+                        mysql.connection.commit()
+                        flash('AI-generated image uploaded successfully!', 'success')
+                    else:
+                        os.remove(temp_path)
+                        flash('Only AI-generated images are allowed.', 'danger')
+                else:
+                    os.remove(temp_path)
+                    flash('Need credits to upload. Please visit the pricing page.', 'credits')
+            else:
+                os.remove(temp_path)
+                flash('Subscription data not found for this user.', 'danger')
+        except Exception as e:
+            os.remove(temp_path)
+            flash('An error occurred. Please try again.', 'danger')
+            print(f"Upload Error: {e}")
+        finally:
+            cursor.close()
+
+        return redirect(url_for('upload_image'))
+
+    return render_template('upload.html', user_id=user_id)
+
+
+
+
+# category route
+@app.route('/category/<category_name>', endpoint='category_page')
+def category_page(category_name):
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id, filename, category, price FROM images WHERE category = %s', (category_name,))
+    category_images = cursor.fetchall()
+    cursor.close()
+    # Render the generic 'category.html' template instead of a category-specific template
+    return render_template('category.html', category_name=category_name, category_images=category_images)
+
+@app.route('/profile/settings', methods=['GET', 'POST'], endpoint='profile_settings')
+def profile_settings():
+    # Check if the user is logged in
+    if 'email' not in session:
+        flash('Please log in to access settings.', 'danger')
+        return redirect(url_for('login'))
+
+    email = session['email']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Fetch user info based on email
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    
+    # Ensure user exists
+    if not user:
+        cursor.close()
+        flash('User not found.', 'danger')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        # Handle password change
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+
+        # Validate current password
+        if check_password_hash(user['password'], current_password):
+            # Update password
+            hashed_new_password = generate_password_hash(new_password)
+            cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_new_password, email))
+            mysql.connection.commit()
+            flash('Password updated successfully!', 'success')
+        else:
+            flash('Current password is incorrect.', 'danger')
+        
+        cursor.close()
+        return redirect(url_for('profile_settings'))
+
+    cursor.close()
+    return render_template('settings.html', user=user)
+
+
+@app.route('/manage_subscription', methods=['GET', 'POST'])
+def manage_subscription():
+    if 'user_id' not in session:
+        flash('Please log in to manage your subscription.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    cursor = mysql.connection.cursor(dictionary=True)
+
+    # Fetch the user's current subscription details
+    cursor.execute("""
+        SELECT us.plan_id, us.start_date, us.credits_remaining, p.plan_name, p.price, p.upload_limit, p.revenue_share 
+        FROM user_subscriptions us
+        JOIN pricing_plans p ON us.plan_id = p.id
+        WHERE us.user_id = %s
+    """, (user_id,))
+    subscription = cursor.fetchone()
+
+    # If no subscription, redirect to the pricing page
+    if not subscription:
+        flash('You do not have an active subscription. Please select a plan to subscribe.', 'info')
+        cursor.close()
+        return redirect(url_for('pricing'))
+
+    # Handle subscription update/cancellation requests
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'cancel':
+            cursor.execute("DELETE FROM user_subscriptions WHERE user_id = %s", (user_id,))
+            mysql.connection.commit()
+            flash('Your subscription has been canceled.', 'success')
+            return redirect(url_for('pricing'))
+        
+        elif action == 'change_plan':
+            new_plan_id = request.form.get('new_plan_id')
+            if new_plan_id:
+                cursor.execute("UPDATE user_subscriptions SET plan_id = %s WHERE user_id = %s", (new_plan_id, user_id))
+                mysql.connection.commit()
+                flash('Your subscription plan has been updated.', 'success')
+                return redirect(url_for('manage_subscription'))
+            else:
+                flash('Please select a valid plan to update.', 'danger')
+    
+    # Fetch all available plans to display as options for plan change
+    cursor.execute("SELECT * FROM pricing_plans")
+    available_plans = cursor.fetchall()
+    cursor.close()
+
+    return render_template(
+        'manage_subscription.html',
+        subscription=subscription,
+        available_plans=available_plans
+    )
+
+
+@app.route('/profile/my-images', endpoint='profile_images')
+def profile_images():
+    if 'user_id' not in session:
+        flash('Please log in to view your uploaded images.', 'error')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id, filename, category, price FROM images WHERE user_id = %s', (user_id,))
+    uploaded_images = cursor.fetchall()
+    cursor.close()
+    return render_template('my_images.html', uploaded_images=uploaded_images)
+
+
+@app.route('/delete_image/<int:image_id>', methods=['POST'])
+def delete_image(image_id):
+    if 'user_id' not in session:
+        flash('Please log in to delete images.', 'error')
+        return redirect(url_for('login'))
+    
+    # Delete the image from the database and file system
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT filename, category FROM images WHERE id = %s AND user_id = %s', (image_id, session['user_id']))
+    image = cursor.fetchone()
+
+    if image:
+        # Remove the image file from the filesystem
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], image['category'], image['filename'])
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        # Delete the record from the database
+        cursor.execute('DELETE FROM images WHERE id = %s', (image_id,))
+        mysql.connection.commit()
+        flash('Image deleted successfully.', 'success')
+    else:
+        flash('Image not found or you do not have permission to delete this image.', 'error')
+    
+    cursor.close()
+    return redirect(url_for('profile_images'))
+
+
+# Route for Purchase History
+@app.route('/purchase_history')
+def purchase_history():
+    if 'email' not in session:
+        flash('You must be logged in to view your purchase history.', 'danger')
+        return redirect(url_for('login'))
+
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT * FROM purchases WHERE user_email = %s", (session['email'],))
+        purchases = cursor.fetchall()
+    except Exception as e:
+        flash("An error occurred while fetching your purchase history.", 'danger')
+        print(f"Error: {e}")
+    finally:
+        cursor.close()
+
+    return render_template('purchase_history.html', purchases=purchases)
+
+@app.route('/settings', endpoint='general_settings')
+def general_settings():
+    if 'user_id' not in session:
+        flash('Please log in to access settings.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    cursor = mysql.connection.cursor()
+    # Fetch user and subscription details
+    cursor.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.execute("""
+        SELECT p.plan_name, p.price, p.upload_limit, p.revenue_share
+        FROM user_subscriptions us
+        JOIN pricing_plans p ON us.plan_id = p.id
+        WHERE us.user_id = %s
+    """, (user_id,))
+    subscription = cursor.fetchone()
+
+    # Get remaining credits if applicable
+    upload_limit = subscription.get('upload_limit') if subscription else None
+    credits_remaining = subscription.get('credits_remaining') if subscription else None
+
+    cursor.close()
+
+    return render_template(
+        'settings.html',
+        user=user,
+        subscription=subscription,
+        upload_limit=upload_limit,
+        credits_remaining=credits_remaining
+    )
+
+# delete account
+@app.route('/profile/delete-account', methods=['GET', 'POST'])
+def delete_account():
+    if 'user_id' not in session:
+        flash('Please log in to delete your account.', 'danger')
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+
+    if request.method == 'POST':
+        cursor = mysql.connection.cursor()
+
+        try:
+            cursor.execute("DELETE FROM user_subscriptions WHERE user_id = %s", (user_id,))
+            cursor.execute("DELETE FROM images WHERE user_id = %s", (user_id,))
+            cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+            mysql.connection.commit()
+            flash('Account successfully deleted.', 'success')
+            session.clear()  # Clear session after account deletion
+        except Exception as e:
+            mysql.connection.rollback()
+            flash('An error occurred while deleting your account. Please try again.', 'danger')
+            print(f"Error: {e}")
+        finally:
+            cursor.close()
+        
+        return redirect(url_for('signup'))
+    
+    # Render confirmation page on GET request
+    return render_template('delete_account_confirm.html')
+
+
+
+    # Route for Cart Page
+@app.route('/cart')
+def cart():
+    # Placeholder logic for fetching cart items from session or database
+    cart_items = session.get('cart', [])  # Retrieve cart items from session
+    total_amount = sum(item['price'] * item.get('quantity', 1) for item in cart_items)
+    return render_template('cart.html', cart_items=cart_items, total_amount=total_amount)
+
+# Route to add an item to the cart
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    item = {
+        'id': request.form['item_id'],
+        'name': request.form['name'],
+        'price': float(request.form['price']),
+        'category': request.form['category'],
+        'filename': request.form['filename'],
+        'quantity': int(request.form.get('quantity', 1))
+    }
+
+    # Add or update item in the session cart
+    cart = session.get('cart', [])
+    for cart_item in cart:
+        if cart_item['id'] == item['id']:
+            cart_item['quantity'] += item['quantity']
+            break
+    else:
+        cart.append(item)
+    
+    session['cart'] = cart
+    flash(f"{item['name']} added to cart!", 'success')
+    return redirect(url_for('cart'))
+
+# Route to remove an item from the cart
+@app.route('/remove_from_cart/<int:item_id>')
+def remove_from_cart(item_id):
+    cart = session.get('cart', [])
+    cart = [item for item in cart if item['id'] != item_id]
+    session['cart'] = cart  # Update session with modified cart
+    flash('Item removed from cart', 'info')
+    return redirect(url_for('cart'))
+
+# Route for Checkout
+@app.route('/checkout')
+def checkout():
+    if 'cart' not in session or not session['cart']:
+        flash('Your cart is empty.', 'warning')
+        return redirect(url_for('cart'))
+    flash('Proceeding to checkout...', 'info')
+    return redirect(url_for('home_page'))  # Redirect to payment page eventually
+
+# Payment Page Route
+@app.route('/payment')
+def payment():
+    image = request.args.get('image')  # Retrieve the image parameter
+    # Additional payment processing can be handled here
+    return render_template('payment.html', image=image)
+
+# Dictionary to store short-term download links (key: unique token, value: file path)
+download_links = {}
+
+@app.route('/confirm_purchase', methods=['POST'])
+def confirm_purchase():
+    # Simulate verifying payment details (e.g., from a payment gateway)
+    image_filename = request.form.get('image')  # e.g., 'animals/animals1.webp'
+    user_email = session.get('email')  # Assuming email is stored in session after login
+    
+    if image_filename:
+        # Generate unique download token and expiration time
+        download_token = str(uuid.uuid4())
+        download_links[download_token] = {
+            'file_path': os.path.join('static/uploads', image_filename),
+            'expires': datetime.now() + timedelta(minutes=30)  # Link valid for 30 minutes
+        }
+        
+        # Send confirmation email with download link
+        send_receipt_email(user_email, image_filename, download_token)
+        
+        # Display download link to user in the confirmation page
+        return render_template('purchase_confirmation.html', download_token=download_token, image_filename=image_filename)
+    else:
+        flash("Error: Unable to confirm purchase.", "danger")
+        return redirect(url_for('home_page'))
+    
+def send_receipt_email(user_email, image_filename, download_token):
+    download_url = url_for('download_image', download_token=download_token, _external=True)
+    
+    # Email setup
+    email_body = f"""
+    Thank you for your purchase!
+
+    Your purchased image: {image_filename}
+    Download it here: {download_url} (valid for 30 minutes)
+
+    Regards,
+    Stock AI Images Team
+    """
+    msg = MIMEMultipart()
+    msg['From'] = 'your_email@example.com'
+    msg['To'] = user_email
+    msg['Subject'] = 'Your Purchase Receipt - Stock AI Images'
+    msg.attach(MIMEText(email_body, 'plain'))
+
+    # SMTP server configuration (replace these with your actual SMTP settings)
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login('your_email@example.com', 'your_app_password')
+            server.sendmail('your_email@example.com', user_email, msg.as_string())
+            print("Receipt email sent successfully.")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+
+   # Assuming download_links is a global dictionary to store tokens
+download_links = {}
+
+    # Route for downloading an image
+@app.route('/download/<download_token>')
+def download_image(download_token):
+    # Retrieve information about the download link
+    link_info = download_links.get(download_token)
+
+    # If the token is valid, proceed
+    if link_info:
+        file_path = link_info.get('file_path')
+        expires = link_info.get('expires')
+
+        # Check if the download link has expired
+        if datetime.now() < expires:
+            # Serve the file if it's still valid
+            try:
+                return send_file(file_path, as_attachment=True)
+            except FileNotFoundError:
+                flash("File not found.", "danger")
+                return redirect(url_for('home_page'))
+        else:
+            # Remove expired token and show a message
+            del download_links[download_token]
+            flash("Download link has expired.", "warning")
+            return redirect(url_for('home_page'))
+    else:
+        # If token is invalid, show a 404 error
+        abort(404)
+
+@app.route('/download/<filename>')
+def download(filename):
+    # Perform security checks to ensure only purchased users can access
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    return send_file(file_path, as_attachment=True)
+
+from flask_mail import Mail, Message
+
+mail = Mail(app)
+
+def send_purchase_receipt(email, image_details):
+    msg = Message(
+        'Purchase Confirmation',
+        sender='machinecanvas.co@gmail.com',
+        recipients=[email]
+    )
+    msg.body = f"Thank you for purchasing {image_details['name']} for ${image_details['price']}!"
+    mail.send(msg)
+
+
+@app.route('/logout')
+def logout():
+    """Clear session data and log the user out."""
+    session.pop('loggedin', None)
+    session.pop('email', None)
+    flash('You have successfully logged out!', 'success')
+    return redirect(url_for('login'))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

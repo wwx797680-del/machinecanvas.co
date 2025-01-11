@@ -1,0 +1,140 @@
+/* Container Styling */
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #000000;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Settings Section Styling */
+.settings-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Title and Spacing Adjustments */
+h1 {
+    font-size: 28px;
+    color: #ffffff;
+    margin-bottom: 15px;
+}
+
+h2 {
+    font-size: 22px;
+    color: #444;
+    margin-bottom: 10px;
+}
+
+/* Bank Details Form Styling */
+.bank-details {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bank-details h2 {
+    font-size: 22px;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.bank-details p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.bank-details .form-label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.bank-details .form-control {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+    box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bank-details .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+.bank-details .btn-primary {
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.bank-details .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+
+/* Button Styling */
+.btn-primary, .btn-secondary, .btn-danger {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Float Delete Account Button */
+.float-end {
+    float: right;
+}
+
+/* Extra Styling for Available Credits and Manage Subscription Sections */
+.available-credits, .manage-subscription {
+    text-align: center;
+}
+
+.available-credits p, .manage-subscription p {
+    font-size: 16px;
+    color: #555;
+}
+
+

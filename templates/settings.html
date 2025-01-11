@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Profile Settings</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="alert-container">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Account Information Section -->
+    {% if user %}
+    <div class="settings-section account-info mb-4 mt-4">
+        <h2><i class="fas fa-user-circle"></i> Account Information</h2>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" disabled>
+        </div>
+    </div>
+
+    <!-- Change Password Section -->
+    <div class="settings-section change-password mb-4">
+        <h2><i class="fas fa-key"></i> Change Password</h2>
+        <form action="{{ url_for('profile_settings') }}" method="POST">
+            <div class="mb-3">
+                <label for="current_password" class="form-label">Current Password:</label>
+                <input type="password" id="current_password" name="current_password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="new_password" class="form-label">New Password:</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Password</button>
+        </form>
+    </div>
+
+    <div class="settings-section bank-details mb-4">
+        <h2>Bank Details for Payout</h2>
+        <p>Enter your bank details securely to receive payouts for your earnings.</p>
+        
+        <p>
+            <strong>
+                <a id="edit-bank-details-link" href="javascript:void(0)" style="text-decoration: underline; color: #007bff;">EDIT</a>
+            </strong>
+        </p>
+        
+        <!-- Bank Details Form -->
+        <form id="bank-details-form" action="{{ url_for('update_bank_details') }}" method="POST" style="display: none; margin-top: 20px;">
+            <div class="mb-3">
+                <label for="account_holder_name" class="form-label">Account Holder Name:</label>
+                <input type="text" id="account_holder_name" name="account_holder_name" class="form-control" 
+                       value="{{ user.bank_details.account_holder_name if user.bank_details else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="account_number" class="form-label">Account Number:</label>
+                <input type="text" id="account_number" name="account_number" class="form-control" 
+                       value="{{ user.bank_details.account_number if user.bank_details else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="sort_code" class="form-label">Sort Code:</label>
+                <input type="text" id="sort_code" name="sort_code" class="form-control" 
+                       value="{{ user.bank_details.sort_code if user.bank_details else '' }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Bank Details</button>
+        </form>
+    </div>
+    
+
+    <!-- Manage Subscription Section -->
+    <div class="settings-section manage-subscription mb-4">
+        <h2>Manage Subscription</h2>
+        {% if subscription %}
+            <div class="mb-3">
+                <p><strong>Current Plan:</strong> {{ subscription.plan_name }}</p>
+                <p><strong>Price:</strong> ${{ subscription.price }}/month</p>
+                <p><strong>Upload Limit:</strong> {{ subscription.upload_limit or "Unlimited" }}</p>
+                <p><strong>Credits Remaining:</strong> {{ subscription.credits_remaining or "N/A" }}</p>
+                <p><strong>Revenue Share:</strong> {{ subscription.revenue_share * 100 }}%</p>
+            </div>
+        {% else %}
+            <p>You do not have an active subscription. <a href="{{ url_for('pricing') }}">Browse Subscription Plans</a></p>
+        {% endif %}
+        <a href="{{ url_for('pricing') }}" class="btn btn-primary">Manage Subscription</a>
+    </div>
+
+    <!-- Available Credits Section for PAYG Users -->
+    {% if user_credits %}
+    <div class="settings-section available-credits mb-4">
+        <h2>Available Credits</h2>
+        <p>You have {{ user_credits.credits }} credits remaining for uploads.</p>
+        <a href="{{ url_for('purchase_credits') }}" class="btn btn-secondary">Purchase More Credits</a>
+    </div>
+    {% endif %}
+
+    <!-- Delete Account Section -->
+    <div class="settings-section delete-account mb-4">
+        <h2>Delete Account</h2>
+        <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+        <a href="{{ url_for('delete_account') }}" class="btn btn-danger float-end">Delete Account</a>
+    </div>
+
+    <!-- Back Button -->
+    <div class="settings-section back-home">
+        <a href="/" class="btn btn-secondary mt-4">Back to Home</a>
+    </div>
+    {% endif %}
+</div>
+
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to fetch the cart count and update the cart icon
+        function updateCartCount() {
+            fetch('/cart_count')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cart_count !== undefined) {
+                        const cartCountElement = document.querySelector('.cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = data.cart_count;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching cart count:', error));
+        }
+    
+        // Call the function on page load
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editLink = document.getElementById('edit-bank-details-link');
+            const bankDetailsForm = document.getElementById('bank-details-form');
+    
+            editLink.addEventListener('click', function () {
+                if (bankDetailsForm.style.display === 'none') {
+                    bankDetailsForm.style.display = 'block';
+                    editLink.textContent = 'CANCEL';
+                    editLink.style.color = 'red'; // Change text color to red for "CANCEL"
+                } else {
+                    bankDetailsForm.style.display = 'none';
+                    editLink.textContent = 'EDIT';
+                    editLink.style.color = '#007bff'; // Restore original color for "EDIT"
+                }
+            });
+        });
+    </script>
+</body>
+{% endblock %}
+

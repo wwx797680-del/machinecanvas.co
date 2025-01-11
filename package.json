@@ -1,0 +1,21 @@
+{
+  "name": "ai-images",
+  "version": "1.0.0",
+  "description": "AI Images project with Flask and MySQL backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server ./static",
+    "minify": "uglify-js static/js/*.js -o static/js/script.min.js",
+    "build-css": "postcss static/css/*.css -o static/css/styles.min.css"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.13",
+    "http-server": "^14.1.1",
+    "lite-server": "^2.6.1",
+    "postcss-cli": "^10.0.0",
+    "serve": "^14.2.4",
+    "uglify-js": "^3.17.4"
+  },
+  "author": "",
+  "license": "ISC"
+}

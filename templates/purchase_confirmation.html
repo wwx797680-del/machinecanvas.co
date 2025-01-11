@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Purchase Confirmation</title>
+</head>
+<body>
+    <h1>Thank you for your purchase!</h1>
+    <p>Your purchased image: {{ image_filename }}</p>
+    <p><a href="{{ url_for('download_image', download_token=download_token) }}" class="btn btn-primary">Download Your Image</a></p>
+    <p>(This link will expire in 30 minutes)</p>
+</body>
+</html>

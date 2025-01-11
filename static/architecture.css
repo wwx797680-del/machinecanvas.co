@@ -1,0 +1,260 @@
+/* Basic styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #000;
+    color: white;
+}
+
+/* Styling for the Header */
+header {
+    background-color: #ffffff;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    margin-bottom: 10px;
+    align-self: flex-start;
+}
+
+.logo img {
+    width: 150px;
+}
+
+/* Navbar Styling */
+nav {
+    background-color: #444;
+    width: 100%;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+}
+
+.navbar li {
+    padding: 15px 20px;
+    position: relative;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px;
+}
+
+.navbar a:hover {
+    background-color: #555;
+    transition: background-color 0.3s ease;
+}
+
+/* Dropdown Menu Styling */
+.navbar .dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 10; /* Add z-index to ensure it's above other content */
+}
+
+.navbar .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    border-radius: 6px;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+
+/* Dropdown item styling */
+.navbar .dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar .dropdown ul li {
+    padding: 10px;
+    border-bottom: 1px solid #555;
+}
+
+.navbar .dropdown ul li a {
+    padding: 10px;
+    display: block;
+}
+
+.navbar .dropdown ul li a:hover {
+    background-color: #666;
+}
+
+
+
+/* Grid layout for image containers (same as index) */
+.category-grid, .index-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Four columns */
+    gap: 20px;
+    padding: 20px;
+}
+
+/* General container styling for images */
+.category-box, .index-box {
+    background-color: #001f3f; /* Main container background */
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Dummy container styling */
+.dummy-container {
+    background-color: #333; /* Dark grey to distinguish it from other containers */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    height: 300px;
+    color: #888;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+/* Dummy container awaiting image text */
+.awaiting-image-text p {
+    font-weight: bold;
+    color: #bbb;
+    margin: 0;
+}
+
+/* Image styling in main container */
+.category-image, .index-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    position: relative;
+    z-index: 1;
+}
+
+/* Hover effect for main image container */
+.category-image:hover {
+    transform: scale(1.05);
+    z-index: 5;
+    border: 2px solid black;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Image details for scrolling text and buy button */
+.image-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px; /* Minimal space between image and details */
+    padding: 8px 0;
+    font-size: 16px;
+    color: #aaa;
+}
+
+/* Scroll effect on text within image details when hovered */
+.category-box:hover .image-details div {
+    animation: scroll-text 5s linear infinite;
+}
+
+@keyframes scroll-text {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+/* Horizontal layout for image info */
+.image-details div {
+    display: flex;
+    gap: 15px;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: transform 0.3s ease;
+}
+
+/* Individual text style */
+.image-details p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Buy button styling under text */
+.image-details .buy-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    margin-top: 8px;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+}
+
+/* Hover effect for buy button */
+.image-details .buy-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Prevent right-click to save images */
+.category-image {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Footer styling */
+footer {
+    background-color: #001f3f;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .category-grid, .index-grid {
+        grid-template-columns: repeat(2, 1fr); /* Switch to two columns on small screens */
+    }
+}

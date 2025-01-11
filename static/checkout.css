@@ -1,0 +1,247 @@
+/* Main Checkout Container */
+.checkout-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #1c1c1c; /* Dark background for checkout */
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    color: #ffffff; /* Light text for readability */
+}
+
+/* Large Outer Container for Checkout */
+.checkout-main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Table Styling */
+.cart-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.cart-items-table th,
+.cart-items-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #444;
+    text-align: center;
+}
+
+.cart-items-table th {
+    background-color: #444; /* Dark header background */
+    color: #ffffff; /* Light text for contrast */
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.cart-items-table td {
+    color: #ccc; /* Lighter text for table content */
+}
+
+/* Cart Content */
+.cart-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Cart Items Summary Section */
+.cart-items-summary {
+    background-color: #2a2a2a; /* Darker section background for contrast */
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    overflow-x: auto; /* Allows horizontal scrolling on smaller screens */
+}
+
+/* Individual Cart Item */
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #2a2a2a; /* Slightly lighter gray for item background */
+    border: 1px solid #444; /* Border for visual separation */
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Thumbnail Image Container */
+.cart-thumbnail-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20%; /* Scale relative to parent */
+    height: 120px; /* Fixed height */
+    overflow: hidden;
+    background-color: #333;
+    border-radius: 4px;
+}
+
+.cart-thumbnail-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Maintain aspect ratio */
+    border-radius: 4px;
+}
+
+/* Thumbnail Image Styling */
+.cart-image-box {
+    width: 60px; /* Fixed size */
+    height: 60px;
+    overflow: hidden;
+    background-color: #333; /* Slightly lighter background */
+    border-radius: 4px;
+    margin: 0 auto;
+}
+
+.cart-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Cart Item Details */
+.cart-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #ddd; /* Light gray for details */
+    flex-grow: 1;
+}
+
+.cart-details p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+/* Cart Summary */
+.cart-summary {
+    text-align: right;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00ff00; /* Bright green for emphasis */
+}
+
+/* Total Amount */
+.total-amount {
+    text-align: right;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00ff00; /* Bright green for emphasis */
+}
+
+/* Payment Section */
+.payment-container {
+    background-color: #444;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.payment-section {
+    background-color: #ffffff; /* Light background for payment area */
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.payment-section h2 {
+    color: #000;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+/* Payment Buttons Section */
+.payment-buttons {
+    display: flex;
+    justify-content: center; /* Centers the payment buttons */
+    align-items: center;
+    gap: 1.5rem; /* Adds space between buttons */
+}
+
+.pay-button {
+    padding: 1rem 2rem;
+    background-color: #007bff; /* Blue for call-to-action */
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pay-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+/* PayPal Button Styling */
+#paypal-button-container {
+    display: block;
+    margin-top: 1rem; /* Spacing above the PayPal button */
+}
+
+/* Payment Icons Section */
+.payment-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 1.5rem;
+}
+
+.payment-icon {
+    height: 40px; /* Standard height for all icons */
+    width: auto; /* Maintain aspect ratio */
+    transition: transform 0.2s ease-in-out;
+}
+
+.payment-icon:hover {
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+/* Empty Cart State */
+.cart-empty {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #aaa; /* Subtle color for empty state text */
+    margin: 2rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .checkout-container {
+        padding: 1rem;
+    }
+
+    .payment-buttons {
+        flex-direction: column; /* Stacks buttons vertically on small screens */
+    }
+
+    .pay-button {
+        width: 100%;
+    }
+
+    .cart-thumbnail-container {
+        width: 50px; /* Adjust thumbnail size for mobile */
+        height: 50px;
+    }
+
+    .cart-item {
+        flex-direction: column; /* Stack items vertically on mobile */
+        align-items: flex-start;
+    }
+
+    .cart-details {
+        text-align: left;
+    }
+}
+

@@ -1,0 +1,180 @@
+/* Extra Styling for Available Credits and Manage Subscription Sections */
+.available-credits, .manage-subscription {
+    text-align: center;
+}
+
+.available-credits p, .manage-subscription p {
+    font-size: 16px;
+    color: #555;
+}
+
+/* Container for image preview with a white border */
+
+.preview-container {
+    border: 2px solid white;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    max-width: 220px;
+    max-height: 200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ }
+
+
+/* Form and preview layout */
+.form-preview-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.form-container {
+    flex: 1;
+}
+
+.preview {
+    flex: 1;
+    text-align: center;
+}
+
+/* Upload Container Styling */
+.upload-container {
+    border: 2px solid white;  /* Add a white border around the entire upload section */
+    padding: 20px;            /* Add some padding inside the container */
+    border-radius: 10px;      /* Rounded corners for a smoother look */
+    background-color: #1c1c1c; /* Background color for contrast with the white border */
+    max-width: 600px;         /* Limit the width for a cleaner layout */
+    margin: 20px auto;        /* Center the container */
+}
+
+.image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    background-color: #c0bdbd;
+    color: #888;
+    font-size: 1em;
+}
+
+
+/* Preview image styling */
+.preview img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+    display: none; /* Show only when there’s an image to preview */
+}
+
+/* Form elements */
+form {
+    width: 100%;
+}
+
+.form-label {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-text {
+    color: #ffffff;
+}
+
+small.form-text {
+    font-size: 0.9em;
+    color: #ffffff;
+}
+
+.upload-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+    background-color: #0056b3;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: none;
+    margin: 20px auto;
+    border: 8px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 8px solid #007bff;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success message styling */
+#confirmationMessage {
+    display: none;
+    color: green;
+    font-size: 1em;
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .form-preview-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    .preview-container {
+        max-width: 150px;
+        max-height: 150px;
+    }
+    .image-placeholder, .preview img {
+        width: 100%;
+        height: 100%;
+    }
+}
+

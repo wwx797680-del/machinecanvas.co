@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Images - Stock AI Images{% endblock %}
+<link rel="stylesheet" href="{{ url_for('static', filename='saved_images.css') }}">
+
+{% block content %}
+<div class="container">
+    <h1>Saved Images</h1>
+    
+    <!-- Grid for saved images -->
+    <div class="category-grid">
+        {% if saved_images %}
+            {% for image in saved_images %}
+            <div class="category-box">
+                <h2>{{ image['category'].replace('_', ' ').title() }}</h2>
+                
+                <!-- Display Saved Image -->
+                <img src="{{ url_for('static', filename='uploads/' + image['category'] + '/' + image['filename']) }}" 
+                     alt="Saved Image {{ image['id'] }}" class="category-image">
+                
+                <!-- Image Price -->
+                <p>Price: ${{ image['price'] }}</p>
+                
+                <!-- Remove from Saved Images Button -->
+                <form action="{{ url_for('delete_saved_image', image_id=image['id']) }}" method="POST">
+                    <button type="submit" class="remove-button"><i class="fas fa-heart-broken"></i> Remove from Saved Images</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No saved images yet.</p>
+        {% endif %}
+        <p>Number of saved images: {{ saved_images | length }}</p>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function removeFromSavedImages(imageId) {
+        fetch(`/remove_saved_image/${imageId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'  // Include if using CSRF protection
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Image removed from saved images!");
+                location.reload(); // Refresh to update UI
+            } else {
+                alert("Error removing image from saved images.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    <div class="cart-icon">
+    <a href="/cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">0</span> <!-- Cart count placeholder -->
+    </a>
+</div>
+
+// Function to fetch the cart count and update the cart icon
+    function updateCartCount() {
+        fetch('/cart_count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+
+
+</script>
+
+
+{% endblock %}

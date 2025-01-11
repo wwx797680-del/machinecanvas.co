@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase Credits - Stock AI Images{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='purchase_credits.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="purchase-credits-container">
+    <h2>Purchase Credits</h2>
+    <p>Select a credit package below to enhance your upload capabilities:</p>
+
+    <div class="row">
+        {% for package in credit_packages %}
+        <div class="col-md-3 mb-4">
+            <div class="card p-4">
+                <!-- Dedicated container for the credit image -->
+                <div class="credit-image-container">
+                    <img 
+                        src="{{ url_for('static', filename='uploads/index_images/' ~ package.credits ~ '_credits.webp') }}"
+                        alt="{{ package.credits }} Credits" 
+                        class="credit-image">
+                </div>
+                <h3>{{ package.credits }} Credits</h3>
+                <p class="price">${{ package.price }}</p>
+                <form action="{{ url_for('purchase_credits') }}" method="POST">
+                    <input type="hidden" name="credits" value="{{ package.credits }}">
+                    <input type="hidden" name="price" value="{{ package.price }}">
+                    <input type="hidden" name="name" value="{{ package.credits }} Credits Package">
+                    <button type="submit" class="btn btn-primary">Buy {{ package.credits }} Credits</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Function to fetch the cart count and update the cart icon
+    function updateCartCount() {
+        fetch('/cart_count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_count !== undefined) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+
+{% endblock %}

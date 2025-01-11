@@ -1,0 +1,200 @@
+/* Basic styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #000; /* Black background */
+    color: white; /* White text */
+}
+
+/* Header styling */
+header {
+    background-color: #ffffff;
+    padding: 10px 20px;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0;
+}
+
+.logo img {
+    width: 150px;
+}
+
+/* Navbar Styling */
+nav {
+    background-color: #444;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.navbar li {
+    padding: 15px 20px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px;
+}
+
+.navbar a:hover {
+    background-color: #555;
+    transition: background-color 0.3s ease;
+}
+
+/* Dropdown Menu Styling */
+.navbar .dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.navbar .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    border-radius: 6px;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* Container styling */
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Set h1 to black */
+h1 {
+    color: black;
+}
+
+/* Form elements styling */
+form {
+    display: flex;
+    flex-direction: column;
+    color: black;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: black;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    width: 100%;
+    color: black;
+    background-color: white;
+}
+
+input::placeholder {
+    color: #999; /* Standard placeholder color for all inputs */
+}
+
+/* Specific styling for User ID input placeholder */
+#user_id::placeholder {
+    color: #555; /* Slightly darker to distinguish from other placeholders */
+    font-weight: bold;
+    font-style: italic;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #007bff;
+}
+
+button.signup-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+button.signup-button:hover {
+    background-color: #0056b3;
+}
+
+/* Footer styling */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #001f3f;
+    color: white;
+    margin-top: 40px;
+}
+
+/* Alerts and Error Messages */
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.text-danger {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
